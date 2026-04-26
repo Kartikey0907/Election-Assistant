@@ -1,0 +1,3 @@
+window.CONFIG = {
+    GEMINI_API_KEY: "AIzaSyBIVG3xKE8zFWSUDFsqL7WLxzeE3IZhggM"
+};
