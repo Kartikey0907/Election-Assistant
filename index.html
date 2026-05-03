@@ -4,24 +4,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Amrita  India Election Assistant | ECI</title>
+  <title>Amrita - India Election Assistant | ECI</title>
   <meta name="description"
     content="Amrita is your friendly election guide. Learn how to register as a voter, check eligibility, understand election timelines, and vote on election day — based on official ECI guidelines." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-  <div id="api-key-modal" class="modal-overlay">
-    <div class="modal-content">
-      <h2>Welcome to Amrita 🇮🇳</h2>
-      <p>Please enter your Google Gemini API Key to use the Election Assistant. It stays completely safe in your browser's local storage.</p>
-      <input type="password" id="api-key-input" placeholder="Paste your API key here..." autocomplete="off" />
-      <button id="save-key-btn">Save & Start Chatting</button>
-      <p class="small-text">Need a key? Get one free from <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>.</p>
-    </div>
-  </div>
-
-  <div class="app-wrapper"><div id="api-key-modal" class="modal-overlay">
+  <div id="api-key-modal" class="modal-overlay hidden">
     <div class="modal-content">
       <h2>Welcome to Amrita 🇮🇳</h2>
       <p>Please enter your Google Gemini API Key to use the Election Assistant. It stays completely safe in your browser's local storage.</p>
@@ -34,7 +24,6 @@
   <div class="app-wrapper">
     <div class="chat-container">
 
-      <!-- HEADER -->
       <header class="chat-header">
         <div class="avatar-wrap">
           <div class="avatar">A</div>
@@ -43,12 +32,12 @@
         <div class="header-info">
           <h1>Amrita</h1>
           <p class="subtitle">
-            🇮🇳 India Election Assistant &nbsp;·&nbsp;
+            India Election Assistant &nbsp;·&nbsp;
             <span class="status-text">Online</span>
           </p>
         </div>
         <div class="header-actions">
-          <button id="reset-btn" class="icon-btn" title="Start over" aria-label="Start over">
+          <button id="reset-btn" class="icon-btn" title="Start over / Change API Key" aria-label="Start over">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
               stroke-linejoin="round">
               <polyline points="1 4 1 10 7 10" />
@@ -58,7 +47,6 @@
         </div>
       </header>
 
-      <!-- ECI TRUST BANNER -->
       <div class="eci-banner">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#138808" stroke-width="2.5"
           stroke-linecap="round" stroke-linejoin="round">
@@ -69,16 +57,18 @@
         <span>guidelines.</span>
       </div>
 
-      <!-- MESSAGES -->
       <div class="chat-messages" id="chat-messages"></div>
 
-      <!-- QUICK REPLIES -->
       <div class="quick-replies" id="quick-replies"></div>
 
-      <!-- INPUT -->
       <div class="chat-input-container">
         <form id="chat-form" autocomplete="off">
-          <input type="text" id="chat-input" placeholder="Type a message or choose an option…" />
+          <input type="text" id="chat-input" placeholder="Type or speak a message…" />
+          
+          <button type="button" id="mic-btn" aria-label="Use Microphone" style="background: transparent; border: none; font-size: 20px; cursor: pointer; padding: 0 10px;">
+            🎙️
+          </button>
+
           <button type="submit" id="send-btn" aria-label="Send">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
               stroke-linejoin="round">
@@ -91,7 +81,6 @@
 
     </div>
 
-    <!-- FOOTER -->
     <div class="chat-footer">
       Powered by <a href="https://eci.gov.in" target="_blank" rel="noopener">eci.gov.in</a>
       &nbsp;·&nbsp; Voter Helpline: <strong>1950</strong>

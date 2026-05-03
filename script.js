@@ -1,20 +1,22 @@
+// ==========================================
+// AMRITA: ELECTION ASSISTANT - ENGLISH & HINGLISH ONLY
+// ==========================================
+
 // --- API KEY HANDLING ---
 let API_KEY = localStorage.getItem('gemini_api_key') || "";
 const modal = document.getElementById('api-key-modal');
 const saveKeyBtn = document.getElementById('save-key-btn');
 const keyInput = document.getElementById('api-key-input');
 
-// Show modal if no key is found
 if (!API_KEY) {
     modal.classList.remove('hidden');
 } else {
     modal.classList.add('hidden');
 }
 
-// Save Key Button Logic
 saveKeyBtn.addEventListener('click', () => {
     const key = keyInput.value.trim();
-    if (key.length > 20) { // Basic validation check
+    if (key.length > 20) { 
         API_KEY = key;
         localStorage.setItem('gemini_api_key', API_KEY);
         modal.classList.add('hidden');
@@ -23,7 +25,6 @@ saveKeyBtn.addEventListener('click', () => {
     }
 });
 
-// Allow hitting "Enter" to save the key
 keyInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') saveKeyBtn.click();
 });
@@ -34,9 +35,8 @@ document.getElementById('chat-form').addEventListener('submit', function (e) {
     sendMessage();
 });
 
-// Reset Button clears chat, stops voice, and lets user input a new key if they want
 document.getElementById('reset-btn').addEventListener('click', () => {
-    if(confirm("Do you want to clear the chat? (Click Cancel if you want to change your API Key instead)")) {
+    if(confirm("Do you want to clear the chat?")) {
         document.getElementById('chat-messages').innerHTML = '';
         window.speechSynthesis.cancel();
     } else {
@@ -46,36 +46,59 @@ document.getElementById('reset-btn').addEventListener('click', () => {
     }
 });
 
-// --- VOICE FEATURES ---
+// --- VOICE FEATURES (Female Voice + English/Hinglish Reading) ---
 function speakAmrita(text) {
     if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+        window.speechSynthesis.cancel(); 
         const cleanText = text.replace(/[*#]/g, ''); 
         const utterance = new SpeechSynthesisUtterance(cleanText);
         
         const voices = window.speechSynthesis.getVoices();
-        const indianVoice = voices.find(v => v.lang === 'en-IN' || v.name.includes('India'));
-        if (indianVoice) utterance.voice = indianVoice;
+        let amritaVoice = null;
+
+        // Force the browser to look for female Indian/English voices
+        const preferredFemaleVoices = [
+            "Microsoft Heera", "Microsoft Neerja", "Aditi", 
+            "Google UK English Female", "Microsoft Zira", "Samantha", "Victoria"
+        ];
         
-        utterance.rate = 1.0;
-        utterance.pitch = 1.1;
+        for (let name of preferredFemaleVoices) {
+            amritaVoice = voices.find(v => v.name.includes(name));
+            if (amritaVoice) break;
+        }
+
+        // Fallback to any voice with "female" in the name
+        if (!amritaVoice) {
+            amritaVoice = voices.find(v => v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('woman'));
+        }
+        
+        if (amritaVoice) {
+            utterance.voice = amritaVoice;
+            console.log("Speaking with female voice: ", amritaVoice.name);
+        }
+        
+        utterance.lang = 'en-IN'; // Sets Indian English accent
+        utterance.rate = 1.0; 
+        utterance.pitch = 1.3; // Higher pitch for a friendly, feminine tone
+        
         window.speechSynthesis.speak(utterance);
     }
 }
 window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 
+// --- MICROPHONE SETUP ---
 const micBtn = document.getElementById('mic-btn');
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 if (SpeechRecognition && micBtn) {
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
-    recognition.lang = 'en-IN';
+    recognition.lang = 'en-IN'; // Perfect for English and Hinglish
     recognition.interimResults = false;
 
     micBtn.addEventListener('click', () => {
         recognition.start();
-        micBtn.innerHTML = '🔴';
+        micBtn.innerHTML = '🔴'; 
     });
 
     recognition.onresult = (event) => {
@@ -86,7 +109,7 @@ if (SpeechRecognition && micBtn) {
 
     recognition.onspeechend = () => {
         recognition.stop();
-        micBtn.innerHTML = '🎙️';
+        micBtn.innerHTML = '🎙️'; 
     };
 
     recognition.onerror = (event) => {
@@ -94,7 +117,7 @@ if (SpeechRecognition && micBtn) {
         micBtn.innerHTML = '🎙️';
     };
 } else if (micBtn) {
-    micBtn.style.display = 'none';
+    micBtn.style.display = 'none'; 
 }
 
 // --- MAIN CHAT LOGIC ---
@@ -105,7 +128,6 @@ async function sendMessage() {
 
     if (!userText || !API_KEY) return;
 
-    // Show user message
     history.innerHTML += `
         <div class="msg-group user">
             <div class="msg-row">
@@ -114,7 +136,6 @@ async function sendMessage() {
         </div>`;
     input.value = "";
 
-    // Show typing indicator
     const loadingId = "loading-" + Date.now();
     history.innerHTML += `
         <div class="msg-group bot" id="${loadingId}">
@@ -124,16 +145,20 @@ async function sendMessage() {
     history.scrollTop = history.scrollHeight;
 
     try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                system_instruction: {
-                    parts: [{ text: "You are Amrita, a professional, friendly India Election Assistant. Keep answers concise. Provide neutral, factual info based on the Election Commission of India." }]
+                // STRICT INSTRUCTIONS: NO DEVANAGARI ALLOWED
+                systemInstruction: {
+                    parts: [{ text: "You are Amrita, a professional India Election Assistant. STRICT LANGUAGE RULES: 1. If the user asks in English, reply in English. 2. If the user asks in Hinglish (Hindi written in English letters), reply in Hinglish. 3. NEVER use the Devanagari script (Hindi letters). Example: Always write 'Aapka vote dena zaroori hai', NEVER write 'आपका वोट देना ज़रूरी है'. Keep answers concise. Provide neutral, factual info based on the Election Commission of India. Always use google_search to get current info." }]
                 },
                 contents: [{
                     parts: [{ text: userText }]
-                }]
+                }],
+                tools: [
+                    { google_search: {} }
+                ]
             })
         });
 
@@ -143,7 +168,6 @@ async function sendMessage() {
         const aiReply = data.candidates[0].content.parts[0].text;
         document.getElementById(loadingId).remove();
         
-        // Convert Markdown to simple HTML (bolding)
         const formattedReply = aiReply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
         history.innerHTML += `
@@ -155,11 +179,14 @@ async function sendMessage() {
             </div>`;
         
         history.scrollTop = history.scrollHeight;
+        
         speakAmrita(aiReply);
 
     } catch (error) {
         console.error(error);
         const loadingEl = document.getElementById(loadingId);
-        if (loadingEl) loadingEl.innerHTML = `<div class="message" style="color:red">Error: Ensure your API key is correct. (${error.message})</div>`;
+        if (loadingEl) {
+            loadingEl.innerHTML = `<div class="message" style="color:red; border-color: red;">Error: ${error.message}</div>`;
+        }
     }
 }
