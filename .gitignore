@@ -1,1 +1,15 @@
+# Ignore Mac OS folder attributes
+.DS_Store
+
+# Ignore Windows thumbnail caches
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Ignore Code Editor folders (VS Code, Cursor, etc.)
+.vscode/
+.idea/
+
+# Just in case you ever use a config file or environment variables later
 config.js
+.env

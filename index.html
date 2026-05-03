@@ -4,13 +4,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Amrita – India Election Assistant | ECI</title>
+  <title>Amrita  India Election Assistant | ECI</title>
   <meta name="description"
     content="Amrita is your friendly election guide. Learn how to register as a voter, check eligibility, understand election timelines, and vote on election day — based on official ECI guidelines." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
+  <div id="api-key-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Welcome to Amrita 🇮🇳</h2>
+      <p>Please enter your Google Gemini API Key to use the Election Assistant. It stays completely safe in your browser's local storage.</p>
+      <input type="password" id="api-key-input" placeholder="Paste your API key here..." autocomplete="off" />
+      <button id="save-key-btn">Save & Start Chatting</button>
+      <p class="small-text">Need a key? Get one free from <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>.</p>
+    </div>
+  </div>
+
+  <div class="app-wrapper"><div id="api-key-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Welcome to Amrita 🇮🇳</h2>
+      <p>Please enter your Google Gemini API Key to use the Election Assistant. It stays completely safe in your browser's local storage.</p>
+      <input type="password" id="api-key-input" placeholder="Paste your API key here..." autocomplete="off" />
+      <button id="save-key-btn">Save & Start Chatting</button>
+      <p class="small-text">Need a key? Get one free from <a href="https://aistudio.google.com/" target="_blank">Google AI Studio</a>.</p>
+    </div>
+  </div>
+
   <div class="app-wrapper">
     <div class="chat-container">
 
@@ -78,7 +98,6 @@
     </div>
   </div>
 
-  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 
