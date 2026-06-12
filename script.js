@@ -150,20 +150,55 @@ async function sendMessage() {
 
     if (!userText || !API_KEY) return;
 
-    history.innerHTML += `
-        <div class="msg-group user">
-            <div class="msg-row">
-                <div class="message">${userText}</div>
-            </div>
-        </div>`;
+    // Create and append user message element safely
+    function createMessageElement(isUser, content, useHTML=false) {
+        const group = document.createElement('div');
+        group.className = 'msg-group ' + (isUser ? 'user' : 'bot');
+
+        const row = document.createElement('div');
+        row.className = 'msg-row';
+
+        if (!isUser) {
+            const avatar = document.createElement('div');
+            avatar.className = 'msg-avatar';
+            avatar.textContent = 'A';
+            row.appendChild(avatar);
+        } else {
+            const avatar = document.createElement('div');
+            avatar.className = 'msg-avatar';
+            avatar.textContent = 'Y';
+            row.appendChild(avatar);
+        }
+
+        const msg = document.createElement('div');
+        msg.className = 'message';
+        if (useHTML) msg.innerHTML = content; else msg.textContent = content;
+
+        row.appendChild(msg);
+
+        const time = document.createElement('div');
+        time.className = 'msg-time';
+        const now = new Date();
+        time.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        row.appendChild(time);
+
+        group.appendChild(row);
+        return group;
+    }
+
+    const userEl = createMessageElement(true, userText, false);
+    history.appendChild(userEl);
     input.value = "";
 
     const loadingId = "loading-" + Date.now();
-    history.innerHTML += `
-        <div class="msg-group bot" id="${loadingId}">
-            <div class="typing-indicator"><span></span><span></span><span></span></div>
-        </div>`;
-    
+    const loadingGroup = document.createElement('div');
+    loadingGroup.className = 'msg-group bot';
+    loadingGroup.id = loadingId;
+    const typingWrap = document.createElement('div');
+    typingWrap.className = 'typing-indicator';
+    typingWrap.innerHTML = '<span></span><span></span><span></span>';
+    loadingGroup.appendChild(typingWrap);
+    history.appendChild(loadingGroup);
     history.scrollTop = history.scrollHeight;
 
     try {
@@ -188,27 +223,27 @@ async function sendMessage() {
         if (data.error) throw new Error(data.error.message);
 
         const aiReply = data.candidates[0].content.parts[0].text;
-        document.getElementById(loadingId).remove();
-        
-        const formattedReply = aiReply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        const loadingEl = document.getElementById(loadingId);
+        if (loadingEl) loadingEl.remove();
 
-        history.innerHTML += `
-            <div class="msg-group bot">
-                <div class="msg-row">
-                    <div class="msg-avatar">A</div>
-                    <div class="message">${formattedReply}</div>
-                </div>
-            </div>`;
-        
+        const formattedReply = aiReply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        const botEl = createMessageElement(false, formattedReply, true);
+        history.appendChild(botEl);
         history.scrollTop = history.scrollHeight;
-        
+
         speakAmrita(aiReply);
 
     } catch (error) {
         console.error(error);
         const loadingEl = document.getElementById(loadingId);
         if (loadingEl) {
-            loadingEl.innerHTML = `<div class="message" style="color:red; border-color: red;">Error: ${error.message}</div>`;
+            loadingEl.innerHTML = '';
+            const err = document.createElement('div');
+            err.className = 'message';
+            err.style.color = 'red';
+            err.style.borderColor = 'red';
+            err.textContent = 'Error: ' + error.message;
+            loadingEl.appendChild(err);
         }
     }
 }
