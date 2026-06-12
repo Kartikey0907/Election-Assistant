@@ -1,9 +1,32 @@
 // ==========================================
-// AMRITA: ELECTION ASSISTANT - ENGLISH & HINGLISH ONLY
+// AMRITA: ELECTION ASSISTANT - ENGLISH ONLY
 // ==========================================
 
 // --- API KEY HANDLING ---
 let API_KEY = localStorage.getItem('gemini_api_key') || "";
+// Language preference: 'en' or 'en-hinglish'
+let LANG_PREF = localStorage.getItem('amrita_lang') || 'en';
+const langSelect = document.getElementById('lang-select');
+
+function getSystemInstructionFor(lang) {
+    if (lang === 'en-hinglish') {
+        return "You are Amrita, a professional India Election Assistant. LANGUAGE RULES: Prefer English but allow Hinglish (Hindi written in Latin letters) when the user uses it. NEVER use Devanagari script. Keep answers concise and neutral, based on Election Commission of India guidance. Always use google_search to get current info.";
+    }
+    // default: English only
+    return "You are Amrita, a professional India Election Assistant. LANGUAGE RULES: Always reply in English regardless of the user's input. NEVER use Hinglish or Devanagari script. Keep answers concise. Provide neutral, factual info based on the Election Commission of India. Always use google_search to get current info.";
+}
+
+let SYSTEM_INSTRUCTION_TEXT = getSystemInstructionFor(LANG_PREF);
+
+// Initialize selector UI
+if (langSelect) {
+    langSelect.value = LANG_PREF;
+    langSelect.addEventListener('change', (e) => {
+        LANG_PREF = e.target.value;
+        localStorage.setItem('amrita_lang', LANG_PREF);
+        SYSTEM_INSTRUCTION_TEXT = getSystemInstructionFor(LANG_PREF);
+    });
+}
 const modal = document.getElementById('api-key-modal');
 const saveKeyBtn = document.getElementById('save-key-btn');
 const keyInput = document.getElementById('api-key-input');
@@ -36,10 +59,9 @@ document.getElementById('chat-form').addEventListener('submit', function (e) {
 });
 
 document.getElementById('reset-btn').addEventListener('click', () => {
-    if(confirm("Do you want to clear the chat?")) {
+    if (confirm("Do you want to clear the chat and change the API key?")) {
         document.getElementById('chat-messages').innerHTML = '';
         window.speechSynthesis.cancel();
-    } else {
         localStorage.removeItem('gemini_api_key');
         API_KEY = "";
         modal.classList.remove('hidden');
@@ -151,7 +173,7 @@ async function sendMessage() {
             body: JSON.stringify({
                 // STRICT INSTRUCTIONS: NO DEVANAGARI ALLOWED
                 systemInstruction: {
-                    parts: [{ text: "You are Amrita, a professional India Election Assistant. STRICT LANGUAGE RULES: 1. If the user asks in English, reply in English. 2. If the user asks in Hinglish (Hindi written in English letters), reply in Hinglish. 3. NEVER use the Devanagari script (Hindi letters). Example: Always write 'Aapka vote dena zaroori hai', NEVER write 'आपका वोट देना ज़रूरी है'. Keep answers concise. Provide neutral, factual info based on the Election Commission of India. Always use google_search to get current info." }]
+                    parts: [{ text: SYSTEM_INSTRUCTION_TEXT }]
                 },
                 contents: [{
                     parts: [{ text: userText }]

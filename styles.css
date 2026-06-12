@@ -161,6 +161,19 @@ body::after {
 }
 .icon-btn svg { width: 16px; height: 16px; }
 
+/* Language selector in header */
+.header-actions select {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.95);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 6px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.header-actions select:focus { outline: none; box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+
 /* ---- ECI BANNER ---- */
 .eci-banner {
   background: linear-gradient(90deg, rgba(255,153,51,0.08), rgba(19,136,8,0.08));
